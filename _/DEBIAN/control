@@ -1,0 +1,10 @@
+Package: com.libdisPatch.tweak
+Name: libdisPatch
+Depends: mobilesubstrate
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: sys
+Author: sys
+Section: Tweaks
+Version: 0.0.1-2
+Installed-Size: 196
