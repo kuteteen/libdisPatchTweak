@@ -19,7 +19,8 @@
 @property (nonatomic, strong) UIViewController *rootVC;
 @property (nonatomic, strong) UIViewController *contentVC;
 
-@property (nonatomic, strong) UIViewController *homeVC;
+@property (nonatomic, strong) UIViewController *channelsVC;
+@property (nonatomic, strong, readonly) UIView *channelsVCMainNavView;
 @property (nonatomic, strong) NSMutableArray *modelArray;
 
 @property (nonatomic, strong) NSMutableArray *userArray;
@@ -34,8 +35,6 @@
 @property (nonatomic, strong) TweakManager *tweakManager;
 
 @property (nonatomic, assign) NSInteger userIndex;
-
-@property (nonatomic, assign) BOOL isSwitchoverLogin;
 
 
 + (instancetype)sharedInstance;
@@ -52,6 +51,8 @@
 - (void)readUserModel;
 - (void)saveUserModel;
 
+- (void)resetUserModelReadState;
+
 - (void)setLoginUserPhone:(NSString *)phone;
 
 - (NSString *)tweakDirectory;
@@ -59,6 +60,8 @@
 - (NSString *)userPhone;
 
 - (NSString *)userCurCoin;
+
+- (UIWebView *)contentWebView;
 
 
 

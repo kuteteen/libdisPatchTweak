@@ -8,6 +8,8 @@
 
 #import "TweakTableViewCell.h"
 #import "./lib/UIView+OMTExtension.h"
+#import "Marco.h"
+
 
 @interface TweakTableViewCell ()
 
@@ -18,6 +20,8 @@
 @property (nonatomic, strong) UILabel *readDateLabel;
 
 @property (nonatomic, strong) UILabel *readCoinLabel;
+
+@property (nonatomic, strong) UIImageView *lineView;
 
 @end
 
@@ -31,6 +35,7 @@
         [self.contentView addSubview:self.readCountLabel];
         [self.contentView addSubview:self.readDateLabel];
         [self.contentView addSubview:self.readCoinLabel];
+        [self.contentView addSubview:self.lineView];
         
         [self setLayout];
     }
@@ -69,20 +74,21 @@
 }
 
 - (void)setLayout {
-    self.phoneLabel.frame = CGRectMake(8.0f, 8.0f, 120, 16.0f);
+    self.phoneLabel.frame = CGRectMake(8.0f, 8.0f, 136, 20.0f);
     self.readCountLabel.frame = CGRectMake(self.phoneLabel.right+8.0f, self.phoneLabel.top, 80, self.phoneLabel.height);
-    self.readDateLabel.frame = CGRectMake(self.phoneLabel.left, self.phoneLabel.bottom+ 8.0f, self.phoneLabel.width, self.phoneLabel.height);
-    self.readCoinLabel.frame = CGRectMake(self.readCountLabel.left, self.readCountLabel.bottom + 8.0f, self.readCountLabel.width, self.readCountLabel.height);
+    self.readDateLabel.frame = CGRectMake(self.phoneLabel.left, self.phoneLabel.bottom+ 8.0f, self.phoneLabel.width + 18.0f, self.phoneLabel.height);
+    self.readCoinLabel.frame = CGRectMake(self.readCountLabel.left+18.0f, self.readCountLabel.bottom + 8.0f, self.readCountLabel.width, self.readCountLabel.height);
     
+    self.lineView.frame = CGRectMake((SCREEN_SIZE_WIDTH-320)/2, CELLHEIGHT-2, 320, 2);
 }
 
 #pragma mark init 
 - (UILabel *)phoneLabel {
     if (!_phoneLabel) {
         _phoneLabel = [UILabel new];
-        [_phoneLabel setFont:[UIFont systemFontOfSize:12.0f]];
+        [_phoneLabel setFont:[UIFont systemFontOfSize:14.0f]];
         [_phoneLabel setBackgroundColor:[UIColor clearColor]];
-        [_phoneLabel setTextColor:[UIColor blackColor]];
+        [_phoneLabel setTextColor:[UIColor whiteColor]];
     }
     
     return _phoneLabel;
@@ -91,9 +97,9 @@
 - (UILabel *)readCountLabel {
     if (!_readCountLabel) {
         _readCountLabel = [UILabel new];
-        [_readCountLabel setFont:[UIFont systemFontOfSize:12.0f]];
+        [_readCountLabel setFont:[UIFont systemFontOfSize:14.0f]];
         [_readCountLabel setBackgroundColor:[UIColor clearColor]];
-        [_readCountLabel setTextColor:[UIColor blackColor]];
+        [_readCountLabel setTextColor:[UIColor whiteColor]];
     }
     
     return _readCountLabel;
@@ -102,9 +108,9 @@
 - (UILabel *)readDateLabel {
     if (!_readDateLabel) {
         _readDateLabel = [UILabel new];
-        [_readDateLabel setFont:[UIFont systemFontOfSize:12.0f]];
+        [_readDateLabel setFont:[UIFont systemFontOfSize:14.0f]];
         [_readDateLabel setBackgroundColor:[UIColor clearColor]];
-        [_readDateLabel setTextColor:[UIColor blackColor]];
+        [_readDateLabel setTextColor:[UIColor whiteColor]];
     }
     
     return _readDateLabel;
@@ -113,13 +119,21 @@
 - (UILabel *)readCoinLabel {
     if (!_readCoinLabel) {
         _readCoinLabel = [UILabel new];
-        [_readCoinLabel setFont:[UIFont systemFontOfSize:12.0f]];
+        [_readCoinLabel setFont:[UIFont systemFontOfSize:14.0f]];
         [_readCoinLabel setBackgroundColor:[UIColor clearColor]];
-        [_readCoinLabel setTextColor:[UIColor blackColor]];
+        [_readCoinLabel setTextColor:[UIColor whiteColor]];
     }
     
     return _readCoinLabel;
 }
 
+- (UIImageView*)lineView {
+    if (!_lineView) {
+        _lineView = [[UIImageView alloc] init];
+        [_lineView setBackgroundColor:[UIColor whiteColor]];
+    }
+    
+    return _lineView;
+}
 
 @end

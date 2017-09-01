@@ -26,7 +26,8 @@ typedef NS_ENUM(NSUInteger, UserModelState) {
 @property (nonatomic, strong) NSMutableArray *alreadyLoadUrlArray;
 @property (nonatomic, copy) NSString *curCoin;
 @property (nonatomic, assign) NSInteger readCount;
-@property (nonatomic, strong) NSDate *startReadDate;
+@property (nonatomic, strong) NSDate *startReadDate;                    //读完时间
+@property (nonatomic, copy) NSString *userAgent;
 
 @property (nonatomic, assign) UserModelState state;
 
@@ -44,6 +45,10 @@ typedef NS_ENUM(NSUInteger, UserModelState) {
 - (BOOL)loadUrlArrayContainsObjectWithUrl:(NSString *)url;
 
 - (void)loadUrlArrayaddObjectWithUrl:(NSString *)url;
+
+- (void)updateStartReadDate;
+
+- (void)resetReadState;
 
 
 @end

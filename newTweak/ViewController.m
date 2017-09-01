@@ -45,7 +45,7 @@
     
     vc = [info objectForKey:@"_contentPage"];
     if (vc) {
-        [TweakDataManager sharedInstance].homeVC = vc;
+        [TweakDataManager sharedInstance].channelsVC = vc;
     }
     
     [self.view setBackgroundColor:[UIColor blackColor]];
@@ -95,14 +95,16 @@
     
     self.name = @"mutouren";
     
+    [self.view subviews];
     
+    [self.view superview];
     
-    TweakViewController *tweak = [TweakViewController new];
-    [self addChildViewController:tweak];
+//    TweakViewController *tweak = [TweakViewController new];
+//    [self addChildViewController:tweak];
+//    
+//    [self.view addSubview:tweak.view];
     
-    [self.view addSubview:tweak.view];
-    
-    NSString *n = [tweak name];
+//    NSString *n = [tweak name];
     
     [self addObserver:[TweakDataManager sharedInstance].tweakManager forKeyPath:@"count" options:NSKeyValueObservingOptionNew || NSKeyValueChangeOldKey context:nil];
     
@@ -110,8 +112,6 @@
     
     [self.view bringSubviewToFront:collectionView];
     [collectionView superview];
-    
-    EXEC([TweakDataManager sharedInstance].homeVC, @"collectionView");
     
     UITabBarController *tabBarVC;
     [tabBarVC setSelectedIndex:1];
@@ -156,6 +156,26 @@
     [[NSUUID alloc] initWithUUIDString:[[TweakDataManager sharedInstance] phoneUserModel].deviceCode];
     
     [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+    
+    [[TweakDataManager sharedInstance].tweakManager sendLocationLogic];
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        TweakViewController *vvc = [TweakViewController new];
+        [self presentViewController:vvc animated:YES completion:^{
+            self.view;
+            NSLog(@"mutouren");
+        }];
+    });
+    
+//    UITabBarController *tabBarVC;
+    [self.view setHidden:NO];
+    
+    [self.view superview];
+    
+}
+
+- (void)dealloc {
+    
 }
 
 
@@ -168,5 +188,17 @@
 
 }
 
+/*
+Zepto1504005647306({
+    "code": 0,
+    "message": "成功",
+    "showErr": 0,
+    "currentTime": 1504005659,
+    "data": {
+        "amount": 0,
+        "status_code": -1705
+    }
+})
+ */
 
 @end

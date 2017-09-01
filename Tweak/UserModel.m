@@ -9,7 +9,7 @@
 #import "UserModel.h"
 #import <CommonCrypto/CommonDigest.h>
 #import <CoreLocation/CoreLocation.h>
-
+#import "./lib/NSDate+Extension.h"
 
 
 
@@ -20,7 +20,7 @@
     if (self) {
         self.curCoin = @"0";
         self.readCount = 0;
-        self.startReadDate = [NSDate date];
+//        self.startReadDate = [NSDate date];
     }
     return self;
 }
@@ -68,6 +68,7 @@
     [coder encodeObject:self.device forKey:@"device"];
     [coder encodeObject:@(self.lat) forKey:@"lat"];
     [coder encodeObject:@(self.lon) forKey:@"lon"];
+    [coder encodeObject:self.userAgent forKey:@"userAgent"];
     
 }
 //对变量解码
@@ -87,6 +88,7 @@
     self.device = [coder decodeObjectForKey:@"device"];
     self.lat = [[coder decodeObjectForKey:@"lat"] doubleValue];
     self.lon = [[coder decodeObjectForKey:@"lon"] doubleValue];
+    self.userAgent = [coder decodeObjectForKey:@"userAgent"];
     return self;
 }
 
@@ -107,18 +109,18 @@
 }
 
 - (NSString *)randomDevice {
-    NSDictionary *deviceDic = @{@"7.1":@[@"iPhone 5",@"iPhone 4S"],
-                                @"7.2":@[@"iPhone 5",@"iPhone 4S"],
-                                @"7.3":@[@"iPhone 5",@"iPhone 4S"],
-                                @"7.4":@[@"iPhone 5",@"iPhone 4S"],
+    NSDictionary *deviceDic = @{@"7.1.1":@[@"iPhone 5",@"iPhone 4S"],
+                                @"7.1.2":@[@"iPhone 5",@"iPhone 4S"],
                                 @"8.1":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C"],
+                                @"8.1.1":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C"],
                                 @"8.2":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C"],
                                 @"8.3":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C"],
                                 @"9.0":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
                                 @"9.1":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
                                 @"9.2":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
-                                @"9.3":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
+                                @"9.2.1":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
                                 @"9.3.3":@[@"iPhone 5",@"iPhone 4S",@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus"],
+                                @"10.0":@[@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus",@"iPhone 6S",@"iPhone 6S Plus",@"iPhone 7",@"iPhone 7 Plus"],
                                 @"10.1":@[@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus",@"iPhone 6S",@"iPhone 6S Plus",@"iPhone 7",@"iPhone 7 Plus"],
                                 @"10.2":@[@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus",@"iPhone 6S",@"iPhone 6S Plus",@"iPhone 7",@"iPhone 7 Plus"],
                                 @"10.3":@[@"iPhone 5S",@"iPhone 5C",@"iPhone 6",@"iPhone 6 Plus",@"iPhone 6S",@"iPhone 6S Plus",@"iPhone 7",@"iPhone 7 Plus"]};
@@ -134,7 +136,7 @@
 }
 
 - (NSString *)randomOSVersion {
-    NSArray *OSVersion = @[@"7.1",@"7.2",@"7.3",@"7.4",@"8.1",@"8.2",@"8.3",@"9.0",@"9.1",@"9.2",@"9.3",@"9.3.3",@"10.1",@"10.2",@"10.3"];
+    NSArray *OSVersion = @[@"7.1.1",@"7.1.2",@"8.1",@"8.1.1",@"8.2",@"8.3",@"9.0",@"9.1",@"9.2",@"9.2.1",@"9.3",@"9.3.3",@"10.0",@"10.1",@"10.2",@"10.3"];
     
     NSInteger index = arc4random()%OSVersion.count;
     
@@ -153,6 +155,59 @@
     }
     
     return res;
+}
+
+//- (NSString *)deviceModel {
+//    NSDictionary *deviceModel = @{@"iPhone 7 Plus":@[@"A1661",@"A1785"],
+//                                  @"iPhone 7":@[@"A1660",@"A1778"],
+//                                  @"iPhone 6S Plus":@[@"A1634",@"A1687"],
+//                                  @"iPhone 6S":@[@"A1633",@"A1688"],
+//                                  @"iPhone 6 Plus":@[@"A1522",@"A1524",@"A1593"],
+//                                  @"iPhone 6":@[@"A1549",@"A1586",@"A1589"],
+//                                  @"iPhone 5S":@[@"A1453",@"A1457",@"A1528",@"A1530"],
+//                                  @"iPhone 5C":@[@"A1456",@"A1507",@"A1526",@"A1529"],
+//                                  @"iPhone 5":@[@"A1428",@"A1429"]};
+//    
+//    return @"";
+//}
+
+- (NSString *)randomUserAgent {
+    NSDictionary *userAgent = @{@"10.3":@"Mozilla/5.0 (iPhone; CPU iPhone os 10_0 like Mac OS X) Applewebkit/603.1.23 (KHTML, like Gecko) Mobile/14E277",
+                                @"10.2":@"Mozilla/5.0 (iPhone; CPU iPhone os 10_2 like Mac OS X) Applewebkit/602.4.6 (KHTML, like Gecko) Mobile/14C92",
+                                @"10.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 10_1 like Mac OS X) Applewebkit/602.2.14 (KHTML, like Gecko) Mobile/14B72",
+                                @"10.0":@"Mozilla/5.0 (iPhone; CPU iPhone os 10_0 like Mac OS X) Applewebkit/602.1.38 (KHTML, like Gecko) Mobile/14A346",
+                                @"9.3.3":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_3_3 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/13G34",
+                                @"9.3":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_3 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/13E233",
+                                @"9.2.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_2_1 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/13D20",
+                                @"9.2":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_2 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/13D15",
+                                @"9.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_1 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/13B143",
+                                @"9.0":@"Mozilla/5.0 (iPhone; CPU iPhone os 9_0 like Mac OS X) Applewebkit/601.1.39 (KHTML, like Gecko) Mobile/13A344",
+                                @"8.3":@"Mozilla/5.0 (iPhone; CPU iPhone os 8_3 like Mac OS X) Applewebkit/600.1.4 (KHTML, like Gecko) Mobile/12F70",
+                                @"8.2":@"Mozilla/5.0 (iPhone; CPU iPhone os 8_2 like Mac OS X) Applewebkit/600.1.4 (KHTML, like Gecko) Mobile/12D508",
+                                @"8.1.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 8_1_1 like Mac OS X) Applewebkit/600.1.4 (KHTML, like Gecko) Mobile/12B435",
+                                @"8.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 8_1 like Mac OS X) Applewebkit/600.1.4 (KHTML, like Gecko) Mobile/12B410",
+                                @"7.1.1":@"Mozilla/5.0 (iPhone; CPU iPhone os 7_1_1 like Mac OS X) Applewebkit/537.51.2 (KHTML, like Gecko) Mobile/11D201",
+                                @"7.1.2":@"Mozilla/5.0 (iPhone; CPU iPhone os 7_1_2 like Mac OS X) Applewebkit/537.51.2 (KHTML, like Gecko) Mobile/11D257"};
+    NSString *agent = [userAgent objectForKey:[self OSVersion]];
+    if (agent&&agent.length) {
+        return agent;
+    }
+    
+    
+    return @"Mozilla/5.0 (iPhone; CPU iPhone os 9_1 like Mac OS X) Applewebkit/601.1.46 (KHTML, like Gecko) Mobile/A1429";
+}
+
+- (void)updateStartReadDate {
+    self.startReadDate = [NSDate date];
+}
+
+- (void)resetReadState {
+    if (self.startReadDate) {
+        if (![self.startReadDate isToday]) {
+            self.readCount = 0;
+            self.curCoin = @"";
+        }
+    }
 }
 
 #pragma mark init
@@ -184,6 +239,14 @@
     }
     
     return _uuid;
+}
+
+- (NSString *)userAgent {
+    if (!_userAgent) {
+        _userAgent = [self randomUserAgent];
+    }
+
+    return _userAgent;
 }
 
 - (NSString *)OSVersion {

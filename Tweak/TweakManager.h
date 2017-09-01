@@ -38,13 +38,15 @@ typedef void (^userModelConfigCompleteBlock)(void);
 
 - (void)end;
 
-- (void)gotoHomeVC;
+- (void)gotoChannelsVC;
 
 - (void)VCLoginLogic;
 
 - (void)sendLocationLogic;
 
 - (void)startConfigUserModelComleteBlock:(userModelConfigCompleteBlock)comleteBlock;
+
+- (void)webViewConfig;
 
 
 @end

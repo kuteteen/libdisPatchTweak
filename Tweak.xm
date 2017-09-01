@@ -13,10 +13,37 @@
 
 //QKInterface 网络请求对象
 
+%hook QKIncomeAlertView
+
+- (void)showInView:(id)arg1 {
+    %orig;
+    [[OMTDebugManager sharedInstance] debug:@"QKIncomeAlertView showInView!!!"];
+}
+
+- (void)show {
+    %orig;
+
+    [[OMTDebugManager sharedInstance] debug:@"QKIncomeAlertView show!!!"];
+}
+
++ (id)alertWithIncome:(id)arg1 {
+    [[OMTDebugManager sharedInstance] debug:@"QKIncomeAlertView alertWithIncome!!!"];
+    return %orig;
+}
+
+
+%end
+
+
 %hook AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     return %orig;
+}
+
+- (void)WebConfig {
+
+    [[TweakDataManager sharedInstance].tweakManager webViewConfig];
 }
 
 %end
@@ -100,6 +127,13 @@
 }
 */
 
+%hook AdeazOSInfo
+
++ (id)getUser_Agent {
+    return @"Mozilla/5.0 (iPhone; CPU iPhone OS 9_3_3 like Mac OS X) AppleWebKit/601.1.46 (KHTML, like Gecko) Mobile/13G34ua qukan_ios_";
+}
+
+%end
 
 %hook UserManger
 
@@ -108,11 +142,12 @@
     [TweakDataManager sharedInstance].userManager = self;
 }
 
+/*
 - (void)setUser:(id)user {
     %orig;
-    [TweakDataManager sharedInstance].isSwitchoverLogin = YES;
 
 }
+*/
 
 %end
 
@@ -123,7 +158,7 @@
 - (void)viewDidLoad {
     %orig;
 
-    [TweakDataManager sharedInstance].homeVC = (UIViewController *)self;
+    [TweakDataManager sharedInstance].channelsVC = (UIViewController *)self;
 
 }
 
@@ -140,13 +175,17 @@
 
 %hook QKContentViewController
 
+- (void)viewDidLoad {
+    %orig;
+    [TweakDataManager sharedInstance].contentVC = (UIViewController*)self;
+}
+
 - (void)webViewDidFinishLoad:(UIWebView *)webView {
     %orig;
     if (webView.isLoading) {
         return;
     }
 
-    [TweakDataManager sharedInstance].contentVC = (UIViewController*)self;
     if ([TweakDataManager sharedInstance].tweakManager.webFinishLoadBlock) {
         [TweakDataManager sharedInstance].tweakManager.webFinishLoadBlock(webView);
     }

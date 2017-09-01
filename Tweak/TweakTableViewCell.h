@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 
+#define CELLHEIGHT 66.0f
+
 @interface TweakTableViewCell : UITableViewCell
 
 

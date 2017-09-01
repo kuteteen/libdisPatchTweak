@@ -10,6 +10,7 @@
 #import "Marco.h"
 #import "./lib/MBProgressHUD/MBProgressHUD+OMTExtension.h"
 #import "./lib/UIView+OMTExtension.h"
+#import "./lib/NSDate+Extension.h"
 #import "UserModel.h"
 #import "TweakDataManager.h"
 #import "TweakTableViewCell.h"
@@ -69,7 +70,7 @@
     
     [self.tableViewHeaderView addSubview:self.startBtn];
     
-    [self.tableViewHeaderView addSubview:self.addViewButton];
+//    [self.tableViewHeaderView addSubview:self.addViewButton];
     
     [self.view addSubview:self.tableView];
     
@@ -79,6 +80,11 @@
     
     [self.maxReadCountField setText:[NSString stringWithFormat:@"%ld",(long)[TweakDataManager sharedInstance].maxReadCount]];
     
+//    for (int row = 0; row < [TweakDataManager sharedInstance].userArray.count; row++) {
+//        [self.selectArray addObject:@(row)];
+//    }
+    
+    [[TweakDataManager sharedInstance] resetUserModelReadState];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -184,12 +190,6 @@
 }
 
 - (void)addViewButtonClicked:(id)sender {
-    if ([TweakDataManager sharedInstance].homeVC) {
-        UICollectionView *view = EXEC([TweakDataManager sharedInstance].homeVC, @"collectionView");
-        if (view && !view.superview) {
-            [[TweakDataManager sharedInstance].homeVC.view addSubview:view];
-        }
-    }
 }
 
 - (void)startBtnClicked:(UIButton *)sender {
@@ -207,7 +207,7 @@
                 [TweakDataManager sharedInstance].userIndex = 0;
                 
                 [self dismissViewControllerAnimated:YES completion:^{
-                    [[TweakDataManager sharedInstance].tweakManager gotoHomeVC];
+                    [[TweakDataManager sharedInstance].tweakManager gotoChannelsVC];
                     
                     [[TweakDataManager sharedInstance].tweakManager begin];
                     
@@ -267,7 +267,6 @@
     TweakTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:reuseId];
     if (!cell) {
         cell = [[TweakTableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:reuseId];
-        [self.selectArray addObject:@(indexPath.row)];
     }
     
     if (self.selectArray.count) {
@@ -286,16 +285,17 @@
     
     [cell setPhoneLabelText:userModel.phone];
     [cell setReadCountLabelText:[NSString stringWithFormat:@"%ld",(long)userModel.readCount]];
-    [cell setReadDateLabelText:[self stringWithDateFormat:@"HH:mm" date:userModel.startReadDate]];
+    //[self stringWithDateFormat:@"HH:mm" date:userModel.startReadDate]
+    [cell setReadDateLabelText:[userModel.startReadDate stringWithDateFormat:@"MM/dd HH:mm"]];
     [cell setReadCoinLabelText:userModel.curCoin];
     
-    
+    [self.view endEditing:YES];
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
 
-    return 56.0f;
+    return CELLHEIGHT;
 }
 
 #pragma mark - UITableViewDelegate

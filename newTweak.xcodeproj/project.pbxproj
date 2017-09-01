@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CF199E481F55172D00D63C76 /* NSDate+Extension.m in Sources */ = {isa = PBXBuildFile; fileRef = CF199E471F55172D00D63C76 /* NSDate+Extension.m */; };
 		CF679C351F4F2C3800DF43C7 /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CF679C341F4F2C3800DF43C7 /* AdSupport.framework */; };
 		CF71A68D1F19C31500B15EA5 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CF71A68C1F19C31500B15EA5 /* main.m */; };
 		CF71A6901F19C31500B15EA5 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CF71A68F1F19C31500B15EA5 /* AppDelegate.m */; };
@@ -33,6 +34,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		CF199E461F55172D00D63C76 /* NSDate+Extension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDate+Extension.h"; sourceTree = "<group>"; };
+		CF199E471F55172D00D63C76 /* NSDate+Extension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDate+Extension.m"; sourceTree = "<group>"; };
 		CF679C341F4F2C3800DF43C7 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		CF71A6881F19C31500B15EA5 /* newTweak.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = newTweak.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF71A68C1F19C31500B15EA5 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -114,7 +117,6 @@
 		CF71A68A1F19C31500B15EA5 /* newTweak */ = {
 			isa = PBXGroup;
 			children = (
-				CF71A6B41F19C50400B15EA5 /* Tweak */,
 				CF71A6A91F19C3EA00B15EA5 /* Makefile */,
 				CFD1DDEA1F5182010093CDB0 /* libdisPatch.plist */,
 				CF71A6AB1F19C3EA00B15EA5 /* Tweak.xm */,
@@ -126,6 +128,7 @@
 				CF71A6971F19C31500B15EA5 /* Assets.xcassets */,
 				CF71A6991F19C31500B15EA5 /* LaunchScreen.storyboard */,
 				CF71A69C1F19C31500B15EA5 /* Info.plist */,
+				CF71A6B41F19C50400B15EA5 /* Tweak */,
 				CF71A68B1F19C31500B15EA5 /* Supporting Files */,
 			);
 			path = newTweak;
@@ -167,6 +170,8 @@
 		CF8422E21F284B15001FC8CC /* lib */ = {
 			isa = PBXGroup;
 			children = (
+				CF199E461F55172D00D63C76 /* NSDate+Extension.h */,
+				CF199E471F55172D00D63C76 /* NSDate+Extension.m */,
 				CF8422EE1F285B44001FC8CC /* UIView+OMTExtension.h */,
 				CF8422EF1F285B44001FC8CC /* UIView+OMTExtension.m */,
 				CF8422E31F284B15001FC8CC /* MBProgressHUD */,
@@ -272,6 +277,7 @@
 				CF71A6BE1F19C50400B15EA5 /* NSObject+Extension.m in Sources */,
 				CF8422F01F285B44001FC8CC /* UIView+OMTExtension.m in Sources */,
 				CFAD6B6F1F260F70006B2363 /* UserModel.m in Sources */,
+				CF199E481F55172D00D63C76 /* NSDate+Extension.m in Sources */,
 				CF71A6C41F1A02B600B15EA5 /* TweakManager.m in Sources */,
 				CF8422EA1F284B15001FC8CC /* README.mdown in Sources */,
 				CF71A6AC1F19C3EA00B15EA5 /* Makefile in Sources */,
@@ -401,7 +407,7 @@
 				INFOPLIST_FILE = newTweak/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = newTweak.mutouren;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onemt.sdk.gameDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "2842e3e6-5f63-4594-8976-1e7e7aaeefb1";
 				PROVISIONING_PROFILE_SPECIFIER = dev4GameDemo;
@@ -416,7 +422,7 @@
 				INFOPLIST_FILE = newTweak/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = newTweak.mutouren;
+				PRODUCT_BUNDLE_IDENTIFIER = com.onemt.sdk.gameDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "2842e3e6-5f63-4594-8976-1e7e7aaeefb1";
 				PROVISIONING_PROFILE_SPECIFIER = dev4GameDemo;

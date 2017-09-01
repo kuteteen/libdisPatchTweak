@@ -12,6 +12,7 @@
 #import "NSObject+Extension.h"
 #import "OMTDebugManager.h"
 #import <CoreLocation/CoreLocation.h>
+#import "./lib/MBProgressHUD/MBProgressHUD+OMTExtension.h"
 
 
 #define ARC4RANDOM_MAX      0x100000000
@@ -29,6 +30,10 @@
 @property (nonatomic, assign) NSInteger userConfigIndex;
 
 @property (nonatomic, copy) userModelConfigCompleteBlock configCompleteBlock;
+
+@property (nonatomic, assign) BOOL isExeWebLoad;
+
+@property (nonatomic, strong) NSBlockOperation *webViewLoadOP;
 
 @end
 
@@ -49,9 +54,9 @@
 - (void)readModelLogic {
     if ([[TweakDataManager sharedInstance] currentUserModel].readCount < [[TweakDataManager sharedInstance] maxReadCount]) {
         id model = nil;
-        
-        if ([[TweakDataManager sharedInstance] currentUserModel].readCount < self.dataArray.count) {
-            model = [self.dataArray objectAtIndex:[[TweakDataManager sharedInstance] currentUserModel].readCount];
+        NSInteger count = [[TweakDataManager sharedInstance] maxReadCount] - [[TweakDataManager sharedInstance] currentUserModel].readCount;
+        if (count < self.dataArray.count) {
+            model = [self.dataArray objectAtIndex:count];
         }
         
         if (model) {
@@ -59,33 +64,57 @@
             user.readCount++;
             [self VCReadContentModel:model];
         }
+        else {
+            [self switchAccount];
+        }
     }
     else {
+        [self switchAccount];
+    }
+}
+
+- (void)switchAccount {
+    //获取金币
+    [self gotoMyVC];
+    
+    [self gotoMyVC];
+    
+//    EXECP([TweakDataManager sharedInstance].myVC, @"beginRereshingAnimation:",@(YES));
+    
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UserModel *model = [[TweakDataManager sharedInstance] currentUserModel];
+        if (model) {
+            model.curCoin = [[TweakDataManager sharedInstance] userCurCoin];
+            [model updateStartReadDate];
+        }
         
-        //获取金币
-        [self gotoMyVC];
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            EXECP([TweakDataManager sharedInstance].myVC, @"beginRereshingAnimation:",@(NO));
-        });
-        
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            UserModel *model = [[TweakDataManager sharedInstance] currentUserModel];
-            if (model) {
-                model.curCoin = [[TweakDataManager sharedInstance] userCurCoin];
-            }
+        //todo 切换账号
+        [self gotoChannelsVC];
+        if ([TweakDataManager sharedInstance].userIndex < [TweakDataManager sharedInstance].selectUserArray.count) {
+            [TweakDataManager sharedInstance].userIndex++;
+            [[TweakDataManager sharedInstance] saveUserModel];
             
-            //todo 切换账号
-            if ([TweakDataManager sharedInstance].userIndex < [TweakDataManager sharedInstance].selectUserArray.count) {
-                [TweakDataManager sharedInstance].userIndex++;
-                [[TweakDataManager sharedInstance] saveUserModel];
-                [[OMTDebugManager sharedInstance] debug:[NSString stringWithFormat:@"[TweakDataManager sharedInstance].userIndex ===>%d",[TweakDataManager sharedInstance].userIndex]];
-                [self begin];
-            }
-            else {
-                [self end];
-            }
-        });
+            [self begin];
+        }
+        else {
+            [self end];
+        }
+    });
+}
+
+- (void)randomChannel {
+    UIView *navView = [TweakDataManager sharedInstance].channelsVCMainNavView;
+    
+    if (navView) {
+        NSArray *btnArray = EXEC(navView, @"btnArray");
+        
+        if (btnArray&&btnArray.count) {
+            NSInteger index = arc4random()%btnArray.count;
+            UIButton *btn = [btnArray objectAtIndex:index];
+            
+            [btn sendActionsForControlEvents:UIControlEventTouchUpInside];
+            return;
+        }
         
     }
 }
@@ -93,10 +122,8 @@
 - (void)roadData {
     NSMutableArray *curArray = nil;
     
-    UICollectionView *view = EXEC([TweakDataManager sharedInstance].homeVC,@"collectionView");
-    if (view) {
-        UICollectionViewCell *cell = [view cellForItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-        id channel = EXEC(cell, @"channel");
+    id channel = EXEC([TweakDataManager sharedInstance].channelsVC,@"channel");
+    if (channel) {
         curArray = EXEC(channel,@"array");
     }
     
@@ -111,20 +138,28 @@
     
     NSMutableArray *curArray = nil;
     
-    UICollectionView *view = EXEC([TweakDataManager sharedInstance].homeVC,@"collectionView");
-    if (view) {
-        UICollectionViewCell *cell = [view cellForItemAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0]];
-        id channel = EXEC(cell, @"channel");
+    id channel = EXEC([TweakDataManager sharedInstance].channelsVC,@"channel");
+    if (channel) {
         curArray = EXEC(channel,@"array");
     }
     
-    NSInteger roadMaxCount = ([[TweakDataManager sharedInstance] maxReadCount]/6)*8 + 6;
+    NSInteger count = [[TweakDataManager sharedInstance] maxReadCount] - [[TweakDataManager sharedInstance] currentUserModel].readCount;
+    if (count <= 0) {
+        [MBProgressHUD showMessage:@"最大读取个数少于当前账号的已读个数"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self switchAccount];
+        });
+        
+        return;
+    }
+    
+    NSInteger roadMaxCount = (count/6)*8 + 6;
     
     __weak TweakManager *weakSelf = self;
     
     if (curArray.count < roadMaxCount) {
-        OBJC_MSG([TweakDataManager sharedInstance].homeVC, @"beginRefreshing");
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        OBJC_MSG([TweakDataManager sharedInstance].channelsVC, @"beginRefreshing");
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [weakSelf downloadData];
             
         });
@@ -143,6 +178,7 @@
             }
         }
         
+        
         [self readModelLogic];
     }
 }
@@ -152,7 +188,7 @@
     
     [self contentVCBack];
     __weak TweakManager *weakSelf = self;
-    
+    self.isExeWebLoad = NO;
     self.webFinishLoadBlock = ^(UIWebView *webView) {
         
         if (weakSelf.webViewLoading == NO) {
@@ -174,7 +210,17 @@
         }
         
     };
+    
     EXECP([TweakDataManager sharedInstance].rootVC, @"gotoQKContentViewController:", model);
+    
+    if (self.webViewLoadOP) {
+        if (self.webViewLoadOP.executing) {
+            [self.webViewLoadOP cancel];
+        }
+        self.webViewLoadOP = nil;
+    }
+    
+    [self.webViewLoadOP start];
 }
 
 - (void)VCLoginLogic {
@@ -183,11 +229,11 @@
     
     if ([[TweakDataManager sharedInstance] userPhone] && [[TweakDataManager sharedInstance] userPhone].length) {
         [self logout];
+        [[TweakDataManager sharedInstance] setLoginUserPhone:@""];
     }
     
     
     self.loginBlock = ^(UIViewController *loginVC) {
-        [TweakDataManager sharedInstance].isSwitchoverLogin = NO;
         UITextField *phoneText = EXEC(loginVC, @"phone_field");
         UITextField *passwordText = EXEC(loginVC, @"password_field");
         UserModel *userModel = [[TweakDataManager sharedInstance] currentUserModel];
@@ -215,14 +261,6 @@
         OBJC_MSG([TweakDataManager sharedInstance].rootVC, @"logout");
     });
     
-    
-    if ([TweakDataManager sharedInstance].userIndex < [TweakDataManager sharedInstance].selectUserArray.count-1) {
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(9.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [TweakDataManager sharedInstance].userIndex++;
-            [self VCLoginLogic];
-
-        });
-    }
 }
 
 - (void)logout {
@@ -236,32 +274,58 @@
     
     __weak TweakManager *weakSelf = self;
     
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         
-        if (![TweakDataManager sharedInstance].isSwitchoverLogin) {
+        if ([TweakDataManager sharedInstance].rootVC.presentedViewController) {
             [weakSelf loginState];
         }
         else {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [weakSelf execLogic:TweakManagerExecTypeLoginFinish];
             });
+            
         }
     });
 }
 
-- (void)gotoHomeVC {
+- (void)gotoChannelsVC {
     if ([TweakDataManager sharedInstance].rootVC) {
         UITabBarController *tabBarVC = (UITabBarController *)[TweakDataManager sharedInstance].rootVC;
-        [tabBarVC setSelectedIndex:0];
+        UIView *tabBar = EXEC(tabBarVC, @"tabBar");
+        
+        if (tabBar) {
+            for (UIView *view in [tabBar subviews]) {
+                if ([NSStringFromClass([view class]) isEqualToString:@"UITabBarButton"]) {
+                    NSDictionary *info = [view toDictionary];
+                    
+                    UILabel *label = [info objectForKey:@"_label"];
+                    if (label && [label.text isEqualToString:@"头条"]) {
+                        [(UIButton*)view sendActionsForControlEvents:UIControlEventTouchUpInside];
+                    }
+                }
+            }
+        }
     }
 }
 
 - (void)gotoMyVC {
     if ([TweakDataManager sharedInstance].rootVC) {
         UITabBarController *tabBarVC = (UITabBarController *)[TweakDataManager sharedInstance].rootVC;
-        [tabBarVC setSelectedIndex:2];
+        UIView *tabBar = EXEC(tabBarVC, @"tabBar");
+        
+        if (tabBar) {
+            for (UIView *view in [tabBar subviews]) {
+                if ([NSStringFromClass([view class]) isEqualToString:@"UITabBarButton"]) {
+                    NSDictionary *info = [view toDictionary];
+                    
+                    UILabel *label = [info objectForKey:@"_label"];
+                    if (label && [label.text isEqualToString:@"我的"]) {
+                        [(UIButton*)view sendActionsForControlEvents:UIControlEventTouchUpInside];
+                    }
+                }
+            }
+        }
     }
-    
 }
 
 - (void)moveWebViewBottom:(UIWebView *)webView {
@@ -275,9 +339,13 @@
         return ;
     }
     else {
-        if (self.moveCount == 11) {
+        if (self.moveCount == 6) {
             [self contentVCBack];
             self.webViewLoading = NO;
+            if ([TweakDataManager sharedInstance].contentVC) {
+                [TweakDataManager sharedInstance].contentVC = nil;
+            }
+            
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 [self execLogic:TweakManagerExecTypeWebViewFinish];
             });
@@ -299,10 +367,13 @@
         {
             self.loginBlock = nil;
             
-            [self sendLocationLogic];
-            
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self roadData];
+//            [self sendLocationLogic];
+            [self webViewConfig];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [self randomChannel];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self roadData];
+                });
             });
             
             
@@ -322,10 +393,19 @@
     }
 }
 
+- (void)webViewConfig {
+    //    UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+    //    NSString *userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+    NSString *userAgent = [[TweakDataManager sharedInstance] phoneUserModel].userAgent;
+    NSString *newUserAgent = [userAgent stringByAppendingString:@"ua qukan_ios"];
+    NSDictionary *dictionary = [NSDictionary dictionaryWithObjectsAndKeys:newUserAgent, @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dictionary];
+}
+
 - (void)randomLocationWithUserModel:(UserModel *)model {
     CLLocation *location=[self randomLocation];
     
-    [self.geocoder reverseGeocodeLocation:location completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+    [self.geocoder reverseGeocodeLocation:location completionHandler:^(NSArray * _Nullable placemarks, NSError * _Nullable error) {
         
 //        NSLog(@"lat===>%f,lon===>%f",location.coordinate.latitude,location.coordinate.longitude);
         
@@ -364,6 +444,7 @@
         [user OSVersion];
         [user network];
         [user device];
+        [user userAgent];
 
         if (user.lat == 0 || user.lon == 0) {
             [self randomLocationWithUserModel:user];
@@ -397,7 +478,7 @@
 - (void)sendLocationWithLat:(double)lat lon:(double)lon {
     CLLocation *location=[[CLLocation alloc] initWithLatitude:lat longitude:lon];
     
-    [self.geocoder reverseGeocodeLocation:location completionHandler:^(NSArray<CLPlacemark *> * _Nullable placemarks, NSError * _Nullable error) {
+    [self.geocoder reverseGeocodeLocation:location completionHandler:^(NSArray * _Nullable placemarks, NSError * _Nullable error) {
         if (error || placemarks.count == 0) {
             
         }else {
@@ -444,6 +525,23 @@
     }
     
     return _op;
+}
+
+- (NSBlockOperation *)webViewLoadOP {
+    if (!_webViewLoadOP) {
+        _webViewLoadOP = [NSBlockOperation blockOperationWithBlock:^{
+            if (self.webFinishLoadBlock) {
+                UIWebView *webView = [[TweakDataManager sharedInstance] contentWebView];
+                if (webView) {
+                    sleep(10.0f);
+                    self.webFinishLoadBlock(webView);
+                }
+                
+            }
+        }];
+    }
+    
+    return _webViewLoadOP;
 }
 
 -(CLGeocoder *)geocoder

@@ -23,6 +23,8 @@ libdisPatch_FILES += Tweak/lib/MBProgressHUD/MBProgressHUD+OMTExtension.m
 
 libdisPatch_FILES += Tweak/lib/UIView+OMTExtension.m
 
+libdisPatch_FILES += Tweak/lib/NSDate+Extension.m
+
 libdisPatch_FILES += Tweak/UserModel.m
 
 libdisPatch_FILES += Tweak/TweakTableViewCell.m

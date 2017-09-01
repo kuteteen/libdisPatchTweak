@@ -9,7 +9,7 @@
 #import "TweakDataManager.h"
 #import "TweakEXECManager.h"
 #import "OMTDebugManager.h"
-
+#import "NSObject+Extension.h"
 
 
 static NSString *const KUserModelArrayFileName = @"userModel.plist";
@@ -48,6 +48,12 @@ static TweakDataManager *instance = nil;
     }
     
     return self;
+}
+
+- (void)resetUserModelReadState {
+    for (UserModel *model in self.userArray) {
+        [model resetReadState];
+    }
 }
 
 - (void)updateSelectUserArrayWithRowArray:(NSMutableArray *)array {
@@ -168,6 +174,7 @@ static TweakDataManager *instance = nil;
         [_temporaryUserModel OSVersion];
         [_temporaryUserModel network];
         [_temporaryUserModel device];
+        [_temporaryUserModel userAgent];
         
         NSInteger index = arc4random()%[self temporaryLocation].count;
         
@@ -204,6 +211,22 @@ static TweakDataManager *instance = nil;
     }
     
     return _tweakManager;
+}
+
+- (UIView *)channelsVCMainNavView {
+    if (self.channelsVC) {
+        return [[self.channelsVC toDictionary] objectForKey:@"_titlePageScrollView"];
+    }
+    
+    return nil;
+}
+
+- (UIWebView *)contentWebView {
+    if ([TweakDataManager sharedInstance].contentVC) {
+        return EXEC([TweakDataManager sharedInstance].contentVC, @"");
+    }
+    
+    return nil;
 }
 
 /*
