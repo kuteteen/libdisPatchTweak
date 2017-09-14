@@ -109,11 +109,12 @@
     return [[TweakDataManager sharedInstance] phoneUserModel].deviceCode;
 }
 
+/*
 - (void)setLocationManager:(id)manager {
     %orig;
     [TweakDataManager sharedInstance].locationManager = manager;
 }
-
+*/
 %end
 
 /*

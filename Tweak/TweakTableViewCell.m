@@ -62,6 +62,11 @@
     [self.readCoinLabel setText:coin];
 }
 
+- (void)setBackgroundColorWithCoin:(NSInteger)coin {
+    
+    [super setBackgroundColor:(coin >= 100)?[UIColor brownColor]:[UIColor redColor]];
+}
+
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
@@ -76,7 +81,7 @@
 - (void)setLayout {
     self.phoneLabel.frame = CGRectMake(8.0f, 8.0f, 136, 20.0f);
     self.readCountLabel.frame = CGRectMake(self.phoneLabel.right+8.0f, self.phoneLabel.top, 80, self.phoneLabel.height);
-    self.readDateLabel.frame = CGRectMake(self.phoneLabel.left, self.phoneLabel.bottom+ 8.0f, self.phoneLabel.width + 18.0f, self.phoneLabel.height);
+    self.readDateLabel.frame = CGRectMake(self.phoneLabel.left, self.phoneLabel.bottom+ 8.0f, self.phoneLabel.width + 22.0f, self.phoneLabel.height);
     self.readCoinLabel.frame = CGRectMake(self.readCountLabel.left+18.0f, self.readCountLabel.bottom + 8.0f, self.readCountLabel.width, self.readCountLabel.height);
     
     self.lineView.frame = CGRectMake((SCREEN_SIZE_WIDTH-320)/2, CELLHEIGHT-2, 320, 2);

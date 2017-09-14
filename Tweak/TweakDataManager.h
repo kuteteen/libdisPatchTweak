@@ -36,9 +36,12 @@
 
 @property (nonatomic, assign) NSInteger userIndex;
 
+@property (nonatomic, assign) BOOL isActivateSignIn;
+
 
 + (instancetype)sharedInstance;
 
+- (UserModel *)sourceUserModelWithIndex:(NSInteger)index;
 
 - (UserModel *)currentUserModel;
 - (UserModel *)phoneUserModel;

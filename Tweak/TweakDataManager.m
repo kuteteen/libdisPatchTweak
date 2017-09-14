@@ -15,6 +15,7 @@
 static NSString *const KUserModelArrayFileName = @"userModel.plist";
 
 #define KMaxReadCountKey @"KMaxReadCountKey"
+#define KIsActivateSignInKey @"KIsActivateSignInKey"
 
 @interface TweakDataManager ()
 
@@ -43,7 +44,6 @@ static TweakDataManager *instance = nil;
         self.userIndex = 0;
         self.userArray = [NSMutableArray array];
         self.selectUserArray = [NSMutableArray array];
-        
         [self readUserModel];
     }
     
@@ -57,9 +57,9 @@ static TweakDataManager *instance = nil;
 }
 
 - (void)updateSelectUserArrayWithRowArray:(NSMutableArray *)array {
+    [[TweakDataManager sharedInstance].selectUserArray removeAllObjects];
+    
     if (array && array.count) {
-        [[TweakDataManager sharedInstance].selectUserArray removeAllObjects];
-        
         for (NSNumber *ber in array) {
             NSInteger index = [ber integerValue];
             if (index < [TweakDataManager sharedInstance].userArray.count) {
@@ -68,6 +68,14 @@ static TweakDataManager *instance = nil;
             }
         }
     }
+}
+
+- (UserModel *)sourceUserModelWithIndex:(NSInteger)index {
+    if (index < self.userArray.count) {
+        return [self.userArray objectAtIndex:index];
+    }
+    
+    return nil;
 }
 
 - (UserModel *)currentUserModel {
@@ -107,6 +115,15 @@ static TweakDataManager *instance = nil;
     }
     
     return path;
+}
+
+- (BOOL)isActivateSignIn {
+    return [[[NSUserDefaults standardUserDefaults] objectForKey:KIsActivateSignInKey] boolValue];
+}
+
+- (void)setIsActivateSignIn:(BOOL)isActivateSignIn {
+    [[NSUserDefaults standardUserDefaults] setObject:@(isActivateSignIn) forKey:KIsActivateSignInKey];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 - (NSInteger)maxReadCount {

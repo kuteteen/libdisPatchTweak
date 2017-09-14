@@ -21,4 +21,6 @@
 
 - (void)setReadCoinLabelText:(NSString *)text;
 
+- (void)setBackgroundColorWithCoin:(NSInteger)coin;
+
 @end

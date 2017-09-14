@@ -46,6 +46,7 @@
     if (self) {
         self.dataArray = [NSMutableArray array];
         self.webViewLoading = NO;
+        self.isLongPress = NO;
     }
     
     return self;
@@ -238,7 +239,7 @@
         UITextField *passwordText = EXEC(loginVC, @"password_field");
         UserModel *userModel = [[TweakDataManager sharedInstance] currentUserModel];
         if (userModel) {
-            
+            [[OMTDebugManager sharedInstance] debug:[NSString stringWithFormat:@"phone===>%@,password===>%@",userModel.phone,userModel.password]];
             [[TweakDataManager sharedInstance] setLoginUserPhone:userModel.phone];
             [phoneText setText:userModel.phone];
             [passwordText setText:userModel.password];
@@ -249,6 +250,7 @@
                 });
                 
                 [weakSelf loginState];
+                
             }
             
         }
@@ -365,16 +367,30 @@
     switch (type) {
         case TweakManagerExecTypeLoginFinish:
         {
-            self.loginBlock = nil;
-            
-//            [self sendLocationLogic];
-            [self webViewConfig];
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                [self randomChannel];
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    [self roadData];
+            if (!self.isLongPress) {
+                self.loginBlock = nil;
+                
+                //            [self sendLocationLogic];
+                [self webViewConfig];
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    [self randomChannel];
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2.0f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                        [self roadData];
+                    });
                 });
-            });
+            }
+            else {
+                [self gotoMyVC];
+                [self gotoMyVC];
+                
+                UserModel *model = [[TweakDataManager sharedInstance] currentUserModel];
+                if (model) {
+                    model.curCoin = [[TweakDataManager sharedInstance] userCurCoin];
+                    [model updateStartReadDate];
+                    [[TweakDataManager sharedInstance] saveUserModel];
+                }
+            }
+            
             
             
             break;
@@ -486,10 +502,9 @@
             NSDictionary *dic = mark.addressDictionary;
             
             dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5f * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                if ([TweakDataManager sharedInstance].locationManager) {
-                    EXECP([TweakDataManager sharedInstance].locationManager, @"sendLocation:", dic);
-                }
-                
+                Class c = NSClassFromString(@"LocationManager");
+                EXECP([[c alloc] init], @"sendLocation:", dic);
+//                [[OMTDebugManager sharedInstance] debug:[NSString stringWithFormat:@"LocationManager sendLocationLogic"]];
             });
             
         }
@@ -519,6 +534,7 @@
 - (NSBlockOperation *)op {
     if (!_op) {
         _op = [NSBlockOperation blockOperationWithBlock:^{
+            self.isLongPress = NO;
             [self VCLoginLogic];
             
         }];

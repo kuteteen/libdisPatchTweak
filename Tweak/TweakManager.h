@@ -32,6 +32,7 @@ typedef void (^userModelConfigCompleteBlock)(void);
 @property (nonatomic, copy) webViewDidFinishLoadBlock webFinishLoadBlock;
 @property (nonatomic, copy) exeLoginBlock loginBlock;
 @property (nonatomic, assign) BOOL isRun;
+@property (nonatomic, assign) BOOL isLongPress;
 
 
 - (void)begin;

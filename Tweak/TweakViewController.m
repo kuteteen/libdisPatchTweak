@@ -20,7 +20,7 @@
 #import <mach-o/dyld.h>
 
 
-@interface TweakViewController () <UITableViewDelegate,UITableViewDataSource>
+@interface TweakViewController () <UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate>
 
 @property (nonatomic, strong) UIView *tweakNavBar;
 @property (nonatomic, strong) UIButton *backBtn;
@@ -36,7 +36,10 @@
 
 @property (nonatomic, strong) UITextField *maxReadCountField;
 @property (nonatomic, strong) UIButton *commitBtn;
-@property (nonatomic, strong) UIButton *addViewButton;
+@property (nonatomic, strong) UILabel *activateMarkLabel;
+@property (nonatomic, strong) UISwitch *activateSwitch;
+
+@property (nonatomic, strong) UILabel *totalCountLabel;
 
 @property (nonatomic, strong) UIButton *startBtn;
 
@@ -68,6 +71,11 @@
     [self.tableViewHeaderView addSubview:self.maxReadCountField];
     [self.tableViewHeaderView addSubview:self.commitBtn];
     
+    [self.tableViewHeaderView addSubview:self.activateMarkLabel];
+    [self.tableViewHeaderView addSubview:self.activateSwitch];
+    
+    [self.tableViewHeaderView addSubview:self.totalCountLabel];
+    
     [self.tableViewHeaderView addSubview:self.startBtn];
     
 //    [self.tableViewHeaderView addSubview:self.addViewButton];
@@ -84,7 +92,11 @@
 //        [self.selectArray addObject:@(row)];
 //    }
     
+    [self updateTotalCountLabel];
+    
     [[TweakDataManager sharedInstance] resetUserModelReadState];
+    
+    [[TweakDataManager sharedInstance].selectUserArray removeAllObjects];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -102,20 +114,28 @@
     
     self.moreBtn.frame = CGRectMake(CGRectGetWidth(_tweakNavBar.frame) - 50 - 12, topPadding, 50, 44);
     
-    self.tableViewHeaderView.frame = CGRectMake(0, 0, SCREEN_SIZE_WIDTH, 120);
+    self.tableViewHeaderView.frame = CGRectMake(0, 0, SCREEN_SIZE_WIDTH, 150.0f);
     
     self.phoneField.frame = CGRectMake(8.0f, 8.0f, 160, 26);
     self.passwordFiled.frame = CGRectMake(self.phoneField.left, self.phoneField.bottom+ 8.0f, self.phoneField.width, self.phoneField.height);
     
     self.joinBtn.frame = CGRectMake(self.phoneField.right+ 8.0f, self.phoneField.top, 60, self.passwordFiled.bottom - self.phoneField.top);
     
-    self.maxReadCountField.frame = CGRectMake(self.phoneField.left, self.passwordFiled.bottom+8.0f, self.passwordFiled.width, self.passwordFiled.height);
+    self.maxReadCountField.frame = CGRectMake(self.phoneField.left, self.passwordFiled.bottom+8.0f, 60.0f, self.passwordFiled.height);
     
-    self.commitBtn.frame = CGRectMake(self.joinBtn.left, self.maxReadCountField.top, self.joinBtn.width, self.maxReadCountField.height);
+    self.commitBtn.frame = CGRectMake(self.maxReadCountField.right + 8.0f, self.maxReadCountField.top, self.joinBtn.width, self.maxReadCountField.height);
+    
+    CGFloat switchW = 40.0f;
+    self.activateSwitch.frame = CGRectMake(SCREEN_SIZE_WIDTH - 22.0f - switchW, self.commitBtn.top - 4.0f, switchW, 26);
+    
+    CGFloat markLabelW = 52.0f;
+    self.activateMarkLabel.frame = CGRectMake(self.activateSwitch.left - 8.0f - markLabelW, self.commitBtn.top, markLabelW, 26.0f);
+    
+    self.totalCountLabel.frame = CGRectMake(self.maxReadCountField.left, self.maxReadCountField.bottom + 8.0f, 112.0f, 26.0f);
     
     self.startBtn.frame = CGRectMake(self.joinBtn.right + 8.0f, self.joinBtn.top + 8.0f, 60, 40);
     
-    self.addViewButton.frame = CGRectMake(self.startBtn.left, self.startBtn.bottom+8.0f, 60, 26);
+//    self.addViewButton.frame = CGRectMake(self.startBtn.left, self.startBtn.bottom+8.0f, 60, 26);
     
     self.tableView.frame = CGRectMake(0, self.tweakNavBar.bottom + 8.0f, SCREEN_SIZE_WIDTH, self.view.height - self.tweakNavBar.bottom - 8.0f);
 }
@@ -189,10 +209,8 @@
     
 }
 
-- (void)addViewButtonClicked:(id)sender {
-}
-
 - (void)startBtnClicked:(UIButton *)sender {
+    
     if ([TweakDataManager sharedInstance].tweakManager.isRun) {
         [[TweakDataManager sharedInstance].tweakManager end];
         [self.startBtn setTitle:@"开始" forState:UIControlStateNormal];
@@ -242,6 +260,40 @@
     return reval;
 }
 
+-(void)handleLongPress:(UILongPressGestureRecognizer *)gestureRecognizer  //长按响应函数
+{
+    CGPoint p = [gestureRecognizer locationInView:self.tableView];
+    
+    
+    NSIndexPath *indexPath = [self.tableView indexPathForRowAtPoint:p];//获取响应的长按的indexpath
+    if (indexPath != nil) {
+        [[TweakDataManager sharedInstance].selectUserArray removeAllObjects];
+        [[TweakDataManager sharedInstance].selectUserArray addObjectsFromArray:[TweakDataManager sharedInstance].userArray];
+        
+        if(gestureRecognizer.state == UIGestureRecognizerStateBegan) {
+            [TweakDataManager sharedInstance].userIndex = indexPath.row;
+            
+            [self dismissViewControllerAnimated:YES completion:^{
+                [[TweakDataManager sharedInstance].tweakManager gotoChannelsVC];
+                [TweakDataManager sharedInstance].tweakManager.isLongPress = YES;
+                [[TweakDataManager sharedInstance].tweakManager VCLoginLogic];
+                
+            }];
+        }
+    }
+}
+
+-(void)getActivateSwitchValue:(id)sender{
+    UISwitch *swi=(UISwitch *)sender;
+    
+    [TweakDataManager sharedInstance].isActivateSignIn = swi.isOn;
+
+}
+
+- (void)updateTotalCountLabel {
+    [self.totalCountLabel setText:[NSString stringWithFormat:@"账号总数：%ld",(long)[TweakDataManager sharedInstance].userArray.count]];
+}
+
 #pragma mark - Protocol conformance
 #pragma mark - UITableViewDataSource
 
@@ -249,7 +301,10 @@
 {
     NSUInteger row = [indexPath row];
     [[TweakDataManager sharedInstance].userArray removeObjectAtIndex:row];//bookInfo为当前table中显示的array
+    [[TweakDataManager sharedInstance] saveUserModel];
     [tableView deleteRowsAtIndexPaths:[NSArray arrayWithObject:indexPath] withRowAnimation:UITableViewRowAnimationLeft];
+    
+    [self updateTotalCountLabel];
 }
 /*此时删除按钮为Delete，如果想显示为“删除” 中文的话，则需要实现
  UITableViewDelegate中的- (NSString *)tableView:(UITableView *)tableView titleForDeleteConfirmationButtonForRowAtIndexPath:(NSIndexPath *)indexPath方法*/
@@ -288,6 +343,7 @@
     //[self stringWithDateFormat:@"HH:mm" date:userModel.startReadDate]
     [cell setReadDateLabelText:[userModel.startReadDate stringWithDateFormat:@"MM/dd HH:mm"]];
     [cell setReadCoinLabelText:userModel.curCoin];
+    [cell setBackgroundColorWithCoin:[userModel.curCoin integerValue]];
     
     [self.view endEditing:YES];
     return cell;
@@ -465,18 +521,6 @@
     return _commitBtn;
 }
 
-- (UIButton *)addViewButton {
-    if (!_addViewButton) {
-        _addViewButton = [UIButton new];
-        [_addViewButton setBackgroundColor:UIColorFromHex(0xFF8A2A)];
-
-        [_addViewButton setTitle:@"+" forState:UIControlStateNormal];
-        [_addViewButton addTarget:self action:@selector(addViewButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
-    }
-    
-    return _addViewButton;
-}
-
 - (UIButton *)startBtn {
     if (!_startBtn) {
         _startBtn = [UIButton new];
@@ -502,10 +546,49 @@
         _tableView.delegate = self;
         _tableView.dataSource  = self;
         _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+        
+        UILongPressGestureRecognizer *lpgr = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPress:)];
+        lpgr.minimumPressDuration = 1.0; //seconds  设置响应时间
+        lpgr.delegate = self;
+        [_tableView addGestureRecognizer:lpgr]; //启用长按事件
     }
     
     
     return _tableView;
+}
+
+- (UILabel *)activateMarkLabel {
+    if (!_activateMarkLabel) {
+        _activateMarkLabel = [UILabel new];
+        [_activateMarkLabel setTextAlignment:NSTextAlignmentCenter];
+        [_activateMarkLabel setBackgroundColor:[UIColor clearColor]];
+        [_activateMarkLabel setTextColor:[UIColor blackColor]];
+        [_activateMarkLabel setText:@"签到："];
+    }
+    
+    return _activateMarkLabel;
+}
+
+- (UILabel *)totalCountLabel {
+    if (!_totalCountLabel) {
+        _totalCountLabel = [UILabel new];
+        [_totalCountLabel setTextAlignment:NSTextAlignmentCenter];
+        [_totalCountLabel setBackgroundColor:[UIColor clearColor]];
+        [_totalCountLabel setTextColor:[UIColor blackColor]];
+        
+    }
+    
+    return _activateMarkLabel;
+}
+
+- (UISwitch *)activateSwitch {
+    if (!_activateSwitch) {
+        _activateSwitch = [UISwitch new];
+        _activateSwitch.on = [TweakDataManager sharedInstance].isActivateSignIn;
+        [_activateSwitch addTarget:self action:@selector(getActivateSwitchValue:) forControlEvents:UIControlEventValueChanged];
+    }
+    
+    return _activateSwitch;
 }
 
 bool printDYLD() {
